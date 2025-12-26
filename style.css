@@ -204,18 +204,34 @@ body {
 }
 
 .selection-container {
-    background: rgba(15, 15, 15, 0.98);
-    padding: 3.5rem 4rem;
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(10, 10, 10, 0.98));
+    padding: 4rem 6rem;
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3rem;
-    min-width: 650px;
-    min-height: 600px;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(255, 215, 0, 0.05);
-    backdrop-filter: blur(15px);
+    gap: 4.5rem;
+    /* Massive gap for breathing room */
+    min-width: 750px;
+    box-shadow:
+        0 40px 100px rgba(0, 0, 0, 0.9),
+        inset 0 0 40px rgba(255, 215, 0, 0.03),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(30px);
+    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .character-selection {
@@ -240,7 +256,7 @@ body {
 
 .char-grid {
     display: flex;
-    gap: 1.5rem;
+    gap: 2.5rem;
 }
 
 .char-card {
@@ -288,9 +304,11 @@ body {
 
 .difficulty-section {
     width: 100%;
-    border-top: 1px solid #222;
-    padding-top: 1.5rem;
+    /* Removed border-top for cleaner look */
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 .difficulty-section h3 {
