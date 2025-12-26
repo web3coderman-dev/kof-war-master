@@ -224,7 +224,7 @@ class ActionNode {
 }
 
 /**
- * 军用级 AI 管理器 (v36.0 行为树架构)
+ * 军用级 AI 管理器 (v37.0 攻击模式记忆)
  */
 class AIManager {
     constructor(fighter, target, difficulty) {
@@ -233,6 +233,7 @@ class AIManager {
         this.config = DIFFICULTY_SETTINGS[difficulty];
         this.tick = 0;
         this.currentPlan = 'NEUTRAL';
+        this.playerAttackHistory = []; // v37.0 攻击模式记忆
         this.behaviorTree = this.buildBehaviorTree();
     }
 
@@ -276,10 +277,21 @@ class AIManager {
         return NodeStatus.FAILURE;
     }
 
-    // 优先级 2: 读帧反击
+    // 优先级 2: 读帧反击 (v37.0 攻击模式识别)
     tryCounter(ctx) {
         if (ctx.playerIsAttacking && ctx.absDist < 250) {
-            if (Math.random() < this.config.counterChance) {
+            // v37.0 记录玩家攻击历史
+            this.playerAttackHistory.push(this.target.state);
+            if (this.playerAttackHistory.length > 5) this.playerAttackHistory.shift();
+
+            // v37.0 Spam检测：最近 3 次攻击是否相同
+            const recentAttacks = this.playerAttackHistory.slice(-3);
+            const spamDetected = recentAttacks.length >= 3 && recentAttacks.every(s => s === this.target.state);
+            const effectiveCounterChance = spamDetected
+                ? Math.min(1, this.config.counterChance * 3)  // Spam 情况反击率 ×3
+                : this.config.counterChance;
+
+            if (Math.random() < effectiveCounterChance) {
                 if (ctx.absDist < 120) {
                     this.fighter.attack('PUNCH');
                 } else if (ctx.absDist < 200) {
