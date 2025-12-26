@@ -447,3 +447,93 @@ body {
     font-weight: bold;
     font-size: 1.1rem;
 }
+
+/* Visual Control Matrix (v17.0) */
+.control-hints {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeIn 1s ease-out;
+}
+
+.hint-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.hint-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+.key-matrix {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.key-row {
+    display: flex;
+    gap: 4px;
+}
+
+.key {
+    width: 32px;
+    height: 32px;
+    background: #222;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: #fff;
+    font-weight: bold;
+    border: 1px solid #444;
+    box-shadow: 0 4px 0 #111;
+    position: relative;
+    user-select: none;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.key.combat {
+    width: 50px;
+    height: 40px;
+    background: linear-gradient(145deg, #333, #222);
+}
+
+.key.combat::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -18px;
+    font-size: 0.5rem;
+    color: #ffd700;
+    opacity: 0.7;
+    white-space: nowrap;
+}
+
+.key:hover {
+    color: #ffd700;
+    border-color: #ffd700;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #111, 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 移动端隐藏物理键盘提示 */
+@media (pointer: coarse) {
+    .control-hints {
+        display: none;
+    }
+}
