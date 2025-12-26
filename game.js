@@ -772,3 +772,53 @@ window.addEventListener('keydown', (e) => {
         }
     }
 });
+
+/* Internationalization Engine (v21.0) */
+import { LANG_DICT } from './i18n.js';
+
+class I18nEngine {
+    static currentLang = 'en';
+
+    static init() {
+        const systemLang = navigator.language.startsWith('zh') ? 'zh' : 'en';
+        this.apply(systemLang);
+    }
+
+    static apply(lang) {
+        if (!LANG_DICT[lang]) return;
+        this.currentLang = lang;
+        document.documentElement.lang = lang;
+
+        // 翻译普通文本
+        const elements = document.querySelectorAll('[data-i18n]');
+        elements.forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (LANG_DICT[lang][key]) {
+                // 如果节点包含 HTML (如 strong 标签)，使用 innerHTML，否则 textContent
+                if (el.children.length > 0 || LANG_DICT[lang][key].includes('<')) {
+                    const iconSpan = el.querySelector('.icon');
+                    if (iconSpan) {
+                        el.innerHTML = `<span class="icon">${iconSpan.innerText}</span> ` + LANG_DICT[lang][key];
+                    } else {
+                        el.innerHTML = LANG_DICT[lang][key];
+                    }
+                } else {
+                    el.textContent = LANG_DICT[lang][key];
+                }
+            }
+        });
+
+        // 翻译属性 (如 placeholder)
+        const attrElements = document.querySelectorAll('[data-i18n-attr]');
+        attrElements.forEach(el => {
+            const config = el.getAttribute('data-i18n-attr');
+            const [attr, key] = config.split(':');
+            if (LANG_DICT[lang][key]) {
+                el.setAttribute(attr, LANG_DICT[lang][key]);
+            }
+        });
+    }
+}
+
+// 初始化语言引擎
+window.addEventListener('DOMContentLoaded', () => I18nEngine.init());
