@@ -204,14 +204,18 @@ body {
 }
 
 .selection-container {
-    background: rgba(15, 15, 15, 0.95);
-    padding: 2.5rem;
-    border: 2px solid #333;
+    background: rgba(15, 15, 15, 0.98);
+    padding: 3.5rem 4rem;
+    border: 1px solid rgba(255, 215, 0, 0.3);
     border-radius: 12px;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.7);
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 3rem;
+    min-width: 650px;
+    min-height: 600px;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(255, 215, 0, 0.05);
+    backdrop-filter: blur(15px);
 }
 
 .character-selection {
@@ -329,6 +333,7 @@ body {
     font-size: 0.8rem;
     margin-top: 1.5rem;
 }
+
 /* Mobile HUD (Touch Device Optimization) */
 .mobile-hud {
     position: absolute;
@@ -367,16 +372,41 @@ body {
     border-color: #ffd700;
 }
 
-.joystick-zone { display: flex; flex-direction: column; align-items: center; }
-.joystick-zone .row { display: flex; gap: 30px; }
-.action-zone { display: flex; gap: 25px; align-items: flex-end; }
-.touch-btn.action { width: 90px; height: 90px; }
+.joystick-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-#btn-super { color: #ff4444; border-color: rgba(255, 0, 0, 0.5); }
-#btn-up { margin-bottom: 20px; }
+.joystick-zone .row {
+    display: flex;
+    gap: 30px;
+}
+
+.action-zone {
+    display: flex;
+    gap: 25px;
+    align-items: flex-end;
+}
+
+.touch-btn.action {
+    width: 90px;
+    height: 90px;
+}
+
+#btn-super {
+    color: #ff4444;
+    border-color: rgba(255, 0, 0, 0.5);
+}
+
+#btn-up {
+    margin-bottom: 20px;
+}
 
 @media (pointer: fine) {
-    .mobile-hud { display: none !important; }
+    .mobile-hud {
+        display: none !important;
+    }
 }
 
 /* Leaderboard & Scoring Styles */
@@ -527,8 +557,15 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* 移动端隐藏物理键盘提示 */
