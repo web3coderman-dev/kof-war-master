@@ -197,7 +197,34 @@ const keys = {
 };
 
 /**
- * 军用级 AI 管理器 (v12.0 战争大师)
+ * 行为树节点状态枚举 (v36.0 Behavior Tree Architecture)
+ */
+const NodeStatus = { SUCCESS: 'SUCCESS', FAILURE: 'FAILURE' };
+
+/**
+ * 选择器节点：按优先级遍历子节点，返回第一个成功的结果
+ */
+class SelectorNode {
+    constructor(children) { this.children = children; }
+    execute(context) {
+        for (const child of this.children) {
+            const status = child.execute(context);
+            if (status === NodeStatus.SUCCESS) return status;
+        }
+        return NodeStatus.FAILURE;
+    }
+}
+
+/**
+ * 动作节点：执行具体行为
+ */
+class ActionNode {
+    constructor(action) { this.action = action; }
+    execute(context) { return this.action(context); }
+}
+
+/**
+ * 军用级 AI 管理器 (v36.0 行为树架构)
  */
 class AIManager {
     constructor(fighter, target, difficulty) {
@@ -205,7 +232,20 @@ class AIManager {
         this.target = target;
         this.config = DIFFICULTY_SETTINGS[difficulty];
         this.tick = 0;
-        this.currentPlan = 'NEUTRAL'; // NEUTRAL, PRESSURE, RETREAT, COUNTER
+        this.currentPlan = 'NEUTRAL';
+        this.behaviorTree = this.buildBehaviorTree();
+    }
+
+    buildBehaviorTree() {
+        return new SelectorNode([
+            new ActionNode((ctx) => this.tryAntiAir(ctx)),    // 优先级 1: 防空
+            new ActionNode((ctx) => this.tryCounter(ctx)),    // 优先级 2: 反击
+            new ActionNode((ctx) => this.trySuper(ctx)),      // 优先级 3: 必杀
+            new ActionNode((ctx) => this.tryPressure(ctx)),   // 优先级 4: 连招压制
+            new ActionNode((ctx) => this.tryAttack(ctx)),     // 优先级 5: 进攻
+            new ActionNode((ctx) => this.tryMove(ctx)),       // 优先级 6: 移动
+            new ActionNode((ctx) => this.fallbackAttack(ctx)) // 优先级 7: 保底
+        ]);
     }
 
     update() {
@@ -213,91 +253,116 @@ class AIManager {
         this.tick++;
         if (this.tick % this.config.reactionDelay !== 0) return;
 
-        const dist = this.target.position.x - this.fighter.position.x;
-        const absDist = Math.abs(dist);
-        const playerIsAttacking = ['PUNCH', 'KICK', 'SUPER'].includes(this.target.state);
-        const playerIsAerial = this.target.position.y < GROUND_Y - 200;
+        const context = {
+            dist: this.target.position.x - this.fighter.position.x,
+            absDist: Math.abs(this.target.position.x - this.fighter.position.x),
+            playerIsAttacking: ['PUNCH', 'KICK', 'SUPER'].includes(this.target.state),
+            playerIsAerial: this.target.position.y < GROUND_Y - 200,
+            isGrounded: this.fighter.velocity.y === 0
+        };
 
-        // 1. 防空红区语义化逻辑 (Anti-Air & Verticality)
-        if (playerIsAerial && absDist < 200 && this.fighter.velocity.y === 0) {
+        this.behaviorTree.execute(context);
+    }
+
+    // 优先级 1: 防空拦截
+    tryAntiAir(ctx) {
+        if (ctx.playerIsAerial && ctx.absDist < 200 && ctx.isGrounded) {
             if (Math.random() < 0.6) {
-                this.fighter.velocity.y = -18; // 起跳拦截
-                this.fighter.attack('KICK');   // 空中截击
-                return;
+                this.fighter.velocity.y = -18;
+                this.fighter.attack('KICK');
+                return NodeStatus.SUCCESS;
             }
         }
+        return NodeStatus.FAILURE;
+    }
 
-        // 2. 读帧反击逻辑 (Counter-System)
-        if (playerIsAttacking && absDist < 250) {
+    // 优先级 2: 读帧反击
+    tryCounter(ctx) {
+        if (ctx.playerIsAttacking && ctx.absDist < 250) {
             if (Math.random() < this.config.counterChance) {
-                // 发现对方前摇，根据距离执行最优反解
-                if (absDist < 120) {
+                if (ctx.absDist < 120) {
                     this.fighter.attack('PUNCH');
-                } else if (absDist < 200) {
+                } else if (ctx.absDist < 200) {
                     this.fighter.attack('KICK');
                 } else if (this.target.state === 'SUPER' && this.fighter.sp >= this.fighter.maxSp) {
-                    this.fighter.attack('SUPER'); // 资源对撼
+                    this.fighter.attack('SUPER');
                 }
-                return;
-            } else if (Math.random() < 0.4) {
-                // 战术垂直躲避 (跳跃躲波或躲低端判定)
-                if (this.fighter.velocity.y === 0) this.fighter.velocity.y = -15;
+                return NodeStatus.SUCCESS;
+            } else if (Math.random() < 0.4 && ctx.isGrounded) {
+                this.fighter.velocity.y = -15;
                 this.currentPlan = 'RETREAT';
+                return NodeStatus.SUCCESS;
             }
         }
+        return NodeStatus.FAILURE;
+    }
 
-        // 3. SP 资源博弈逻辑 (Strategic Super)
-        if (this.fighter.sp >= this.fighter.maxSp && absDist < 250 && !playerIsAttacking) {
+    // 优先级 3: SP 资源必杀
+    trySuper(ctx) {
+        if (this.fighter.sp >= this.fighter.maxSp && ctx.absDist < 250 && !ctx.playerIsAttacking) {
             if (Math.random() < 0.7) {
                 this.fighter.attack('SUPER');
-                return;
+                return NodeStatus.SUCCESS;
             }
         }
+        return NodeStatus.FAILURE;
+    }
 
-        // 4. 动态立回与状态机 (Spacing & Decision)
-        if (this.currentPlan === 'RETREAT') {
-            const retreatDir = dist > 0 ? -1 : 1;
-            this.fighter.velocity.x = retreatDir * this.config.moveSpeed;
-            if (absDist > 380) this.currentPlan = 'NEUTRAL';
-        } else if (absDist > 240) {
-            // 追击距离
-            this.fighter.velocity.x = dist > 0 ? this.config.moveSpeed : -this.config.moveSpeed;
-        } else if (absDist < 120 && Math.random() < 0.3) {
-            // 贴身过近时的诱敌后撤 (Weaving)
-            this.fighter.velocity.x = dist > 0 ? -this.config.moveSpeed : this.config.moveSpeed;
-        } else {
-            // 中距离对峙平衡 (左右晃动干扰)
-            const wobble = Math.sin(this.tick * 0.1) * 2;
-            this.fighter.velocity.x = wobble;
+    // 优先级 4: 连招压制
+    tryPressure(ctx) {
+        if (this.currentPlan === 'PRESSURE' && !this.fighter.isAttacking && ctx.absDist < 200) {
+            this.fighter.attack('KICK');
+            this.currentPlan = 'NEUTRAL';
+            return NodeStatus.SUCCESS;
+        }
+        return NodeStatus.FAILURE;
+    }
 
-            // 进攻判定
+    // 优先级 5: 进攻判定
+    tryAttack(ctx) {
+        if (ctx.absDist >= 120 && ctx.absDist <= 240 && !this.fighter.isAttacking) {
             if (Math.random() < this.config.attackChance) {
                 const rand = Math.random();
                 if (rand < 0.6) this.fighter.attack('PUNCH');
                 else this.fighter.attack('KICK');
 
-                // 连招压制计划
                 if (Math.random() < this.config.comboChance) {
                     this.currentPlan = 'PRESSURE';
                 }
+                return NodeStatus.SUCCESS;
             }
         }
+        return NodeStatus.FAILURE;
+    }
 
-        // 5. 连招压制逻辑
-        if (this.currentPlan === 'PRESSURE' && !this.fighter.isAttacking) {
-            if (absDist < 200) {
-                this.fighter.attack('KICK');
-                this.currentPlan = 'NEUTRAL';
-            }
+    // 优先级 6: 移动逻辑
+    tryMove(ctx) {
+        if (this.currentPlan === 'RETREAT') {
+            const retreatDir = ctx.dist > 0 ? -1 : 1;
+            this.fighter.velocity.x = retreatDir * this.config.moveSpeed;
+            if (ctx.absDist > 380) this.currentPlan = 'NEUTRAL';
+            return NodeStatus.SUCCESS;
+        } else if (ctx.absDist > 240) {
+            this.fighter.velocity.x = ctx.dist > 0 ? this.config.moveSpeed : -this.config.moveSpeed;
+            return NodeStatus.SUCCESS;
+        } else if (ctx.absDist < 120 && Math.random() < 0.3) {
+            this.fighter.velocity.x = ctx.dist > 0 ? -this.config.moveSpeed : this.config.moveSpeed;
+            return NodeStatus.SUCCESS;
+        } else {
+            const wobble = Math.sin(this.tick * 0.1) * 2;
+            this.fighter.velocity.x = wobble;
         }
+        return NodeStatus.FAILURE;
+    }
 
-        // 6. 概率保底机制 (v35.0 Probability Floor)
-        // 确保 AI 在近距离时永远有兆底攻击行为
-        if (!this.fighter.isAttacking && absDist < 200 && absDist > 50) {
-            if (Math.random() < 0.25) { // 25% 保底率
-                this.fighter.attack('PUNCH');
-            }
+    // 优先级 7: 保底攻击 (永远成功)
+    fallbackAttack(ctx) {
+        if (!this.fighter.isAttacking && ctx.absDist < 200 && ctx.absDist > 50) {
+            this.fighter.attack('PUNCH');
+            return NodeStatus.SUCCESS;
         }
+        // 即使不满足攻击条件，也返回成功以结束树遍历
+        return NodeStatus.SUCCESS;
     }
 }
 
