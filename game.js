@@ -33,7 +33,28 @@ const CHARACTER_REGISTRY = {
         imageSrc: new URL('./assets/textures/character_tech.png', import.meta.url).href,
         superColor: '#00ccff', // 冰晶蓝
         counterColor: '#ffffff',
-        spritePivotX: 190 // 精确足部中心坐标 (像素)
+        spritePivotX: 190
+    },
+    KIM: {
+        name: 'KIM KAPHWAN',
+        imageSrc: new URL('./assets/textures/character.png', import.meta.url).href, // Placeholder
+        superColor: '#00ffff', // 青蓝色
+        counterColor: '#0088ff',
+        spritePivotX: 185
+    },
+    SHERMIE: {
+        name: 'SHERMIE',
+        imageSrc: new URL('./assets/textures/character_tech.png', import.meta.url).href, // Placeholder
+        superColor: '#da70d6', // 紫罗兰
+        counterColor: '#ff00ff',
+        spritePivotX: 190
+    },
+    TERRY: {
+        name: 'TERRY BOGARD',
+        imageSrc: new URL('./assets/textures/character.png', import.meta.url).href, // Placeholder
+        superColor: '#ffcc00', // 黄金焰
+        counterColor: '#ff4400',
+        spritePivotX: 185
     }
 };
 
@@ -321,6 +342,11 @@ class Fighter {
         this.isAttacking = false;
         this.color = color;
 
+        // VSA (Visual Superposition Architecture) 扩展 (v29.0)
+        this.ghosts = []; // 残影数组
+        this.hitShake = 0; // 受击震动幅度
+        this.tweenScale = { x: 1, y: 1 }; // 程序化缩放插值
+
         // 绑定英雄元数据
         const charData = CHARACTER_REGISTRY[characterType];
         this.characterType = characterType;
@@ -380,44 +406,63 @@ class Fighter {
 
     draw() {
         if (!this.rawImage.complete) return;
-
-        // 1. 渲染阴影 (渲染层级置底)
         this.drawShadow();
 
-        // 绝对像素切片算法 (彻底根除鬼脚)
-        // 设想大图为 1024x1024, 每帧 256x256
         const sw = this.rawImage.width / 4;
         const sh = this.rawImage.height / 4;
         const col = this.framesCurrent % 4;
         const row = Math.floor(this.framesCurrent / 4);
-
-        // 使用更激进的安全缩进 (内缩 3 像素) 并强制取整
         const sx = Math.floor(col * sw) + 3;
         const sy = Math.floor(row * sh) + 3;
         const sWidth = Math.floor(sw) - 6;
         const sHeight = Math.floor(sh) - 6;
 
+        // 1. 绘制残影 (Ghosting Pass)
+        this.ghosts.forEach((g, i) => {
+            ctx.save();
+            ctx.globalAlpha = g.alpha * (i / this.ghosts.length);
+            const gRenderX = g.x + this.width / 2;
+            ctx.translate(gRenderX, g.y + this.height);
+            if (this.shouldFlip) ctx.scale(-1, 1);
+
+            const gCol = g.frame % 4;
+            const gRow = Math.floor(g.frame / 4);
+            const gSx = Math.floor(gCol * sw) + 3;
+            const gSy = Math.floor(gRow * sh) + 3;
+
+            ctx.drawImage(this.rawImage, gSx, gSy, sWidth, sHeight, -this.spritePivotX, -320 + 60, 320, 320);
+            ctx.restore();
+            g.alpha *= 0.8;
+        });
+
+        // 2. 绘制主体 (Main Sprite Pass)
         ctx.save();
-        // 应用震屏
+
+        // 抖动与震屏应用
+        let shakeX = 0;
+        if (this.hitShake > 0) {
+            shakeX = (Math.random() - 0.5) * this.hitShake;
+            this.hitShake *= 0.8;
+        }
         if (screenShake > 0) {
             ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
         }
 
-        // 动态对峙逻辑 (反转判定以适配素材基准)
-        // 如果对手在右边 (opponent.x > this.x), 应该不翻转 (面向右)
-        // 如果对手在左边 (opponent.x < this.x), 应该翻转 (面向左)
-        // 渲染位置计算：基于足部中心 (Pivot) 对齐物理影子
-        // 物理中心在 x + width/2，我们要让素材的 spritePivotX 刚好在该点上
-        const renderX = (this.position.x + this.width / 2) - (this.spritePivotX);
+        const renderX = this.position.x + this.width / 2;
+        ctx.translate(renderX + shakeX, this.position.y + this.height);
 
-        if (this.shouldFlip) {
-            ctx.translate(this.position.x + this.width / 2, this.position.y);
-            ctx.scale(-1, 1);
-            // 翻转模式下，渲染起点需要反向补偿
-            ctx.drawImage(this.rawImage, sx, sy, sWidth, sHeight, -this.spritePivotX, -100, 320, 320);
-        } else {
-            ctx.drawImage(this.rawImage, sx, sy, sWidth, sHeight, renderX, this.position.y - 100, 320, 320);
+        if (this.shouldFlip) ctx.scale(-1, 1);
+        ctx.scale(this.tweenScale.x, this.tweenScale.y);
+
+        ctx.drawImage(this.rawImage, sx, sy, sWidth, sHeight, -this.spritePivotX, -320 + 60, 320, 320);
+
+        // SUPER 发光叠加
+        if (this.state === 'SUPER') {
+            ctx.globalCompositeOperation = 'screen';
+            ctx.globalAlpha = 0.3;
+            ctx.drawImage(this.rawImage, sx, sy, sWidth, sHeight, -this.spritePivotX, -320 + 60, 320, 320);
         }
+
         ctx.restore();
     }
 
@@ -458,6 +503,29 @@ class Fighter {
             this.shouldFlip = opponent.position.x < this.position.x;
         }
 
+        // 1. 程序化动作插值 (Squash & Stretch)
+        if (Math.abs(this.velocity.y) > 0.1) {
+            this.tweenScale.y = 1 + Math.abs(this.velocity.y) / 40; // 跳跃/落地拉伸
+            this.tweenScale.x = 1 - Math.abs(this.velocity.y) / 60; // 遵循能量守恒
+        } else {
+            this.tweenScale.x += (1 - this.tweenScale.x) * 0.2;
+            this.tweenScale.y += (1 - this.tweenScale.y) * 0.2;
+        }
+
+        // 2. 残影序列管理 (Ghosting)
+        if (Math.abs(this.velocity.x) > 8 || this.state === 'SUPER') {
+            this.ghosts.push({
+                x: this.position.x,
+                y: this.position.y,
+                frame: this.framesCurrent,
+                alpha: 0.6
+            });
+            if (this.ghosts.length > 5) this.ghosts.shift();
+        } else {
+            if (this.ghosts.length > 0) this.ghosts.shift();
+        }
+
+        // 3. 基础逻辑更新
         this.draw();
         this.animate();
 
@@ -512,6 +580,11 @@ class Fighter {
         if (this.isDead) return;
         this.state = 'HIT';
         this.framesCurrent = this.frames['HIT'].start;
+
+        // VSA 受击反馈
+        this.hitShake = isCounter ? 30 : 15;
+        this.tweenScale.x = 1.2; // 受击瞬间横向拉伸
+        this.tweenScale.y = 0.8; // 受击瞬间纵向压缩 (表现冲击力)
 
         // 受击回气逻辑
         this.sp = Math.min(this.maxSp, this.sp + 10);

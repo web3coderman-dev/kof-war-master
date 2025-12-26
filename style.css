@@ -260,8 +260,9 @@ body {
 }
 
 .char-grid {
-    display: flex;
-    gap: 2.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
 }
 
 .char-card {
