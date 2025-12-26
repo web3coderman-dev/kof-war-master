@@ -47,7 +47,7 @@
             <div class="selection-container">
                 <div class="character-selection">
                     <div class="selection-column p1-select">
-                        <h3>PLAYER 1</h3>
+                        <h3 data-i18n="selection-title-p1">PLAYER 1</h3>
                         <div class="char-grid">
                             <div class="char-card active" data-id="RYO" onclick="selectCharacter(1, 'RYO')">
                                 <img src="assets/textures/character.png"
@@ -63,7 +63,7 @@
                     </div>
 
                     <div class="selection-column p2-select">
-                        <h3>AI OPPONENT</h3>
+                        <h3 data-i18n="selection-title-p2">AI OPPONENT</h3>
                         <div class="char-grid">
                             <div class="char-card" data-id="RYO" onclick="selectCharacter(2, 'RYO')">
                                 <img src="assets/textures/character.png"
@@ -80,15 +80,15 @@
                 </div>
 
                 <div class="selection-footer">
-                    <button class="guide-btn" onclick="toggleGuide(true)">
+                    <button class="guide-btn" onclick="toggleGuide(true)" data-i18n="btn-command-center">
                         <span class="icon">?</span> COMMAND CENTER [H]
                     </button>
                     <div class="difficulty-section">
-                        <h3>SELECT DIFFICULTY</h3>
+                        <h3 data-i18n="difficulty-title">SELECT DIFFICULTY</h3>
                         <div class="difficulty-options">
-                            <button onclick="startGame('EASY')">EASY</button>
-                            <button onclick="startGame('MEDIUM')" class="active">MEDIUM</button>
-                            <button onclick="startGame('HARD')">HARD</button>
+                            <button onclick="startGame('EASY')" data-i18n="diff-easy">EASY</button>
+                            <button onclick="startGame('MEDIUM')" class="active" data-i18n="diff-medium">MEDIUM</button>
+                            <button onclick="startGame('HARD')" data-i18n="diff-hard">HARD</button>
                         </div>
                     </div>
                 </div>
@@ -100,13 +100,13 @@
             <div class="modal-content">
                 <button class="close-modal" onclick="toggleGuide(false)">&times;</button>
 
-                <h2 class="modal-title">TACTICAL COMMAND CENTER</h2>
+                <h2 class="modal-title" data-i18n="modal-title">TACTICAL COMMAND CENTER</h2>
 
                 <div class="guide-grid">
                     <section class="guide-section">
                         <div class="section-header">
-                            <span class="section-tag">CORE</span>
-                            <h4>MOVEMENT</h4>
+                            <span class="section-tag" data-i18n="guide-tag-core">CORE</span>
+                            <h4 data-i18n="guide-title-move">MOVEMENT</h4>
                         </div>
                         <div class="key-matrix matrix-large">
                             <div class="key">W</div>
@@ -116,21 +116,23 @@
                                 <div class="key">D</div>
                             </div>
                         </div>
-                        <p class="section-desc">Double tap <strong>A/D</strong> to Dash. Press <strong>W</strong> for
+                        <p class="section-desc" data-i18n="guide-desc-move">Double tap <strong>A/D</strong> to Dash.
+                            Press <strong>W</strong> for
                             Aerial Combat.</p>
                     </section>
 
                     <section class="guide-section">
                         <div class="section-header">
-                            <span class="section-tag">OFFENSE</span>
-                            <h4>COMBAT MATRIX</h4>
+                            <span class="section-tag" data-i18n="guide-tag-offense">OFFENSE</span>
+                            <h4 data-i18n="guide-title-combat">COMBAT MATRIX</h4>
                         </div>
                         <div class="key-row">
                             <div class="key combat" data-label="PUNCH">J</div>
                             <div class="key combat" data-label="KICK">K</div>
                             <div class="key combat" data-label="SUPER">L</div>
                         </div>
-                        <p class="section-desc">Combine <strong>S + D + J</strong> to unleash hidden Special Moves.</p>
+                        <p class="section-desc" data-i18n="guide-desc-combat">Combine <strong>S + D + J</strong> to
+                            unleash hidden Special Moves.</p>
                     </section>
                 </div>
 
@@ -138,22 +140,24 @@
                     <div class="tip-item">
                         <span class="tip-icon">🛡️</span>
                         <div>
-                            <h5>ABSOLUTE DEFENSE</h5>
-                            <p>Hold back while being attacked to minimize damage and build SUPER meter.</p>
+                            <h5 data-i18n="tip-title-defense">ABSOLUTE DEFENSE</h5>
+                            <p data-i18n="tip-desc-defense">Hold back while being attacked to minimize damage and build
+                                SUPER meter.</p>
                         </div>
                     </div>
                     <div class="tip-item">
                         <span class="tip-icon">⚡</span>
                         <div>
-                            <h5>FRAME REACTION</h5>
-                            <p>Interrupt enemy animations with Light Punch (J) for Frame Advantage.</p>
+                            <h5 data-i18n="tip-title-frame">FRAME REACTION</h5>
+                            <p data-i18n="tip-desc-frame">Interrupt enemy animations with Light Punch (J) for Frame
+                                Advantage.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="game-message" class="overlay-msg">READY?</div>
+        <div id="game-message" class="overlay-msg" data-i18n="msg-ready">READY?</div>
 
         <!-- Mobile Controller HUD (Visible only on touch devices) -->
         <div id="mobile-controls" class="mobile-hud">
