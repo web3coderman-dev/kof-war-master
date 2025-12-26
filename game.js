@@ -566,9 +566,9 @@ window.startGame = function (difficulty) {
         characterType: selectedPlayer2
     });
 
-    // 系统同步
-    document.querySelector('.p1 .player-name').innerText = player.name;
-    document.querySelector('.p2 .player-name').innerText = enemy.name;
+    // 系统同步 (v26.0 选择器更新)
+    document.querySelector('.p1-hud .player-name').innerText = player.name;
+    document.querySelector('.p2-hud .player-name').innerText = enemy.name;
 
     aiManager = new AIManager(enemy, player, difficulty);
     currentDifficulty = difficulty; // 记录当前难度用于评分
@@ -585,7 +585,7 @@ function decreaseTimer() {
     if (timer > 0 && !checkEndGame()) {
         setTimeout(decreaseTimer, 1000);
         timer--;
-        document.querySelector('#game-timer').innerHTML = timer;
+        document.querySelector('#timer').innerHTML = timer;
     }
 }
 
