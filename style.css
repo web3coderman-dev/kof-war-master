@@ -869,16 +869,16 @@ body {
 
 .portrait-frame img {
     position: absolute;
-    top: 0;
-    left: 50%;
-    width: 256px;
-    /* 精灵图宽度 (64px * 4 倍) */
-    height: 256px;
-    /* 精灵图高度 */
-    transform: translateX(-50%);
-    object-fit: none;
-    object-position: 0 -10px;
+    /* 将精灵图定位到只显示第一帧的头部区域 */
+    width: auto;
+    height: 300px;
+    /* 放大后的单帧高度 */
+    top: -20px;
     /* 向上偏移显示头部 */
+    left: 50%;
+    transform: translateX(-50%);
+    clip-path: inset(0 75% 0 0);
+    /* 裁切右侧75%，只显示第一帧 */
     image-rendering: pixelated;
 }
 
