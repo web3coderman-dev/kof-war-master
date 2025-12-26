@@ -24,7 +24,10 @@ export const LANG_DICT = {
         "input-placeholder": "ENTER YOUR NAME",
         "btn-register": "REGISTER HONOR",
         "rank-title": "GLOBAL RANKINGS",
-        "btn-restart": "RESTART BATTLE"
+        "btn-restart": "RESTART BATTLE",
+        "ko-win": "VICTORY",
+        "ko-lose": "DEFEAT",
+        "ko-draw": "DRAW"
     },
     zh: {
         "selection-title-p1": "玩家 1",
@@ -51,6 +54,9 @@ export const LANG_DICT = {
         "input-placeholder": "输入您的名号",
         "btn-register": "登记荣耀",
         "rank-title": "全球战勋榜",
-        "btn-restart": "重新决战"
+        "btn-restart": "重新决战",
+        "ko-win": "大获全胜",
+        "ko-lose": "战败惜败",
+        "ko-draw": "平局"
     }
 };
