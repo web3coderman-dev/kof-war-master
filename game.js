@@ -19,17 +19,17 @@ const DIFFICULTY_SETTINGS = {
     HARD: { reactionDelay: 5, attackChance: 0.35, moveSpeed: 7, comboChance: 0.8, counterChance: 0.9 }
 };
 
-// 角色注册表 (v11.0 英雄工厂)
+// 角色注册表 (v11.0 英雄工厂 | v16.0 智能路径)
 const CHARACTER_REGISTRY = {
     RYO: {
         name: 'RYO SAKAZAKI',
-        imageSrc: 'assets/textures/character.png',
+        imageSrc: new URL('./assets/textures/character.png', import.meta.url).href,
         superColor: '#ff4500', // 火焰橙
         counterColor: '#ff00ff'
     },
     TECH: {
         name: 'TECH-STRIKER',
-        imageSrc: 'assets/textures/character_tech.png',
+        imageSrc: new URL('./assets/textures/character_tech.png', import.meta.url).href,
         superColor: '#00ccff', // 冰晶蓝
         counterColor: '#ffffff'
     }
