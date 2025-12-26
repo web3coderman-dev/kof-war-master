@@ -345,7 +345,6 @@ class Fighter {
         // VSA (Visual Superposition Architecture) 扩展 (v29.0)
         this.ghosts = []; // 残影数组
         this.hitShake = 0; // 受击震动幅度
-        this.tweenScale = { x: 1, y: 1 }; // 程序化缩放插值
 
         // 绑定英雄元数据
         const charData = CHARACTER_REGISTRY[characterType];
@@ -452,7 +451,6 @@ class Fighter {
         ctx.translate(renderX + shakeX, this.position.y + this.height);
 
         if (this.shouldFlip) ctx.scale(-1, 1);
-        ctx.scale(this.tweenScale.x, this.tweenScale.y);
 
         ctx.drawImage(this.rawImage, sx, sy, sWidth, sHeight, -this.spritePivotX, -320 + 60, 320, 320);
 
@@ -503,14 +501,7 @@ class Fighter {
             this.shouldFlip = opponent.position.x < this.position.x;
         }
 
-        // 1. 程序化动作插值 (Squash & Stretch)
-        if (Math.abs(this.velocity.y) > 0.1) {
-            this.tweenScale.y = 1 + Math.abs(this.velocity.y) / 40; // 跳跃/落地拉伸
-            this.tweenScale.x = 1 - Math.abs(this.velocity.y) / 60; // 遵循能量守恒
-        } else {
-            this.tweenScale.x += (1 - this.tweenScale.x) * 0.2;
-            this.tweenScale.y += (1 - this.tweenScale.y) * 0.2;
-        }
+        // 1. 程序化动作插值 (Squash & Stretch) -> 已移除 v33.0 为了防止形变
 
         // 2. 残影序列管理 (Ghosting)
         if (Math.abs(this.velocity.x) > 8 || this.state === 'SUPER') {
@@ -583,8 +574,6 @@ class Fighter {
 
         // VSA 受击反馈
         this.hitShake = isCounter ? 30 : 15;
-        this.tweenScale.x = 1.2; // 受击瞬间横向拉伸
-        this.tweenScale.y = 0.8; // 受击瞬间纵向压缩 (表现冲击力)
 
         // 受击回气逻辑
         this.sp = Math.min(this.maxSp, this.sp + 10);
