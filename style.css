@@ -805,3 +805,182 @@ body {
     color: #ffd700;
     transform: translateY(-2px);
 }
+
+/* ================================
+   VS Arena Layout (v39.0)
+   ================================ */
+
+.vs-selection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    height: 100%;
+}
+
+.vs-title {
+    font-size: 1.8rem;
+    color: #ffd700;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    margin: 0;
+}
+
+.vs-arena {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.fighter-showcase {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.showcase-label {
+    font-size: 0.9rem;
+    color: #ffd700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.portrait-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.portrait-frame {
+    width: 160px;
+    height: 160px;
+    border: 3px solid rgba(255, 215, 0, 0.4);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.portrait-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: none;
+    object-position: 0 0;
+    transform: scale(2.5);
+    transform-origin: top left;
+}
+
+.portrait-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 40%, rgba(255, 215, 0, 0.15) 100%);
+    pointer-events: none;
+}
+
+.p1-frame {
+    border-color: rgba(255, 100, 100, 0.6);
+    box-shadow: 0 0 20px rgba(255, 100, 100, 0.3);
+}
+
+.p2-frame {
+    border-color: rgba(100, 100, 255, 0.6);
+    box-shadow: 0 0 20px rgba(100, 100, 255, 0.3);
+}
+
+.nav-arrow {
+    width: 36px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffd700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nav-arrow:hover {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: #ffd700;
+    transform: scale(1.1);
+}
+
+.nav-arrow:active {
+    transform: scale(0.95);
+}
+
+.fighter-name {
+    font-size: 1rem;
+    color: #fff;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.vs-badge {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #ff4444;
+    text-shadow:
+        0 0 30px rgba(255, 68, 68, 0.8),
+        0 0 60px rgba(255, 68, 68, 0.4);
+    animation: vs-pulse 1.5s ease-in-out infinite;
+    margin: 0 1rem;
+}
+
+@keyframes vs-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        text-shadow: 0 0 30px rgba(255, 68, 68, 0.8);
+    }
+
+    50% {
+        transform: scale(1.15);
+        text-shadow: 0 0 50px rgba(255, 68, 68, 1);
+    }
+}
+
+.vs-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.difficulty-bar {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.difficulty-bar button {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #aaa;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.difficulty-bar button:hover {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+.difficulty-bar button.active {
+    background: #ffd700;
+    border-color: #ffd700;
+    color: #000;
+    font-weight: bold;
+}

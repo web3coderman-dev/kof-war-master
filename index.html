@@ -49,86 +49,51 @@
 
         <!-- Overlays -->
         <div id="start-screen" class="start-overlay">
-            <div class="selection-container">
-                <div class="character-selection">
-                    <div class="player-select p1-select">
-                        <h4 data-i18n="selection-title-p1">PLAYER 1</h4>
-                        <div class="selection-track">
-                            <div class="char-grid">
-                                <div class="char-card active" data-id="RYO" onclick="selectCharacter(1, 'RYO')">
-                                    <img src="assets/textures/character.png"
-                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5);">
-                                    <span>RYO</span>
-                                </div>
-                                <div class="char-card" data-id="TECH" onclick="selectCharacter(1, 'TECH')">
-                                    <img src="assets/textures/character_tech.png"
-                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5);">
-                                    <span>TECH</span>
-                                </div>
-                                <div class="char-card" data-id="KIM" onclick="selectCharacter(1, 'KIM')">
-                                    <img src="assets/textures/character.png"
-                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5); filter: hue-rotate(180deg);">
-                                    <span>KIM</span>
-                                </div>
-                                <div class="char-card" data-id="SHERMIE" onclick="selectCharacter(1, 'SHERMIE')">
-                                    <img src="assets/textures/character_tech.png"
-                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5); filter: hue-rotate(270deg);">
-                                    <span>SHERMIE</span>
-                                </div>
-                                <div class="char-card" data-id="TERRY" onclick="selectCharacter(1, 'TERRY')">
-                                    <img src="assets/textures/character.png"
-                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5); filter: sepia(1) saturate(5) hue-rotate(-50deg);">
-                                    <span>TERRY</span>
-                                </div>
+            <div class="vs-selection">
+                <h2 class="vs-title" data-i18n="vs-title">选择角色</h2>
+
+                <div class="vs-arena">
+                    <!-- 玩家 1 区域 -->
+                    <div class="fighter-showcase p1-showcase">
+                        <h4 class="showcase-label" data-i18n="selection-title-p1">PLAYER 1</h4>
+                        <div class="portrait-container">
+                            <button class="nav-arrow prev" onclick="cycleCharacter(1, -1)">◀</button>
+                            <div class="portrait-frame p1-frame">
+                                <img id="p1-portrait" src="assets/textures/character.png" alt="P1">
+                                <div class="portrait-glow"></div>
                             </div>
+                            <button class="nav-arrow next" onclick="cycleCharacter(1, 1)">▶</button>
                         </div>
+                        <div class="fighter-name" id="p1-char-name">RYO SAKAZAKI</div>
                     </div>
 
-                    <div class="player-select p2-select">
-                        <h4 data-i18n="selection-title-p2">AI OPPONENT</h4>
-                        <div class="selection-track">
-                            <div class="char-grid">
-                                <div class="char-card" data-id="RYO" onclick="selectCharacter(2, 'RYO')">
-                                    <img src="assets/textures/character.png"
-                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5);">
-                                    <span>RYO</span>
-                                </div>
-                                <div class="char-card active" data-id="TECH" onclick="selectCharacter(2, 'TECH')">
-                                    <img src="assets/textures/character_tech.png"
-                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5);">
-                                    <span>TECH</span>
-                                </div>
-                                <div class="char-card" data-id="KIM" onclick="selectCharacter(2, 'KIM')">
-                                    <img src="assets/textures/character.png"
-                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5); filter: hue-rotate(180deg);">
-                                    <span>KIM</span>
-                                </div>
-                                <div class="char-card" data-id="SHERMIE" onclick="selectCharacter(2, 'SHERMIE')">
-                                    <img src="assets/textures/character_tech.png"
-                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3); filter: hue-rotate(270deg);">
-                                    <span>SHERMIE</span>
-                                </div>
-                                <div class="char-card" data-id="TERRY" onclick="selectCharacter(2, 'TERRY')">
-                                    <img src="assets/textures/character.png"
-                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3); filter: sepia(1) saturate(5) hue-rotate(-50deg);">
-                                    <span>TERRY</span>
-                                </div>
+                    <!-- VS 标识 -->
+                    <div class="vs-badge">VS</div>
+
+                    <!-- AI 对手区域 -->
+                    <div class="fighter-showcase p2-showcase">
+                        <h4 class="showcase-label" data-i18n="selection-title-p2">AI OPPONENT</h4>
+                        <div class="portrait-container">
+                            <button class="nav-arrow prev" onclick="cycleCharacter(2, -1)">◀</button>
+                            <div class="portrait-frame p2-frame">
+                                <img id="p2-portrait" src="assets/textures/character_tech.png" alt="P2">
+                                <div class="portrait-glow"></div>
                             </div>
+                            <button class="nav-arrow next" onclick="cycleCharacter(2, 1)">▶</button>
                         </div>
+                        <div class="fighter-name" id="p2-char-name">TECH-STRIKER</div>
                     </div>
                 </div>
 
-                <div class="selection-footer">
+                <!-- 底部控制区 -->
+                <div class="vs-footer">
                     <button class="guide-btn" onclick="toggleGuide(true)" data-i18n="btn-command-center">
                         <span class="icon">?</span> COMMAND CENTER [H]
                     </button>
-                    <div class="difficulty-section">
-                        <h3 data-i18n="difficulty-title">SELECT DIFFICULTY</h3>
-                        <div class="difficulty-options">
-                            <button onclick="startGame('EASY')" data-i18n="diff-easy">EASY</button>
-                            <button onclick="startGame('MEDIUM')" class="active" data-i18n="diff-medium">MEDIUM</button>
-                            <button onclick="startGame('HARD')" data-i18n="diff-hard">HARD</button>
-                        </div>
+                    <div class="difficulty-bar">
+                        <button onclick="startGame('EASY')" data-i18n="diff-easy">入门</button>
+                        <button onclick="startGame('MEDIUM')" class="active" data-i18n="diff-medium">进阶</button>
+                        <button onclick="startGame('HARD')" data-i18n="diff-hard">大师</button>
                     </div>
                 </div>
             </div>

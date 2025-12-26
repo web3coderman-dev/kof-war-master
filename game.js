@@ -720,24 +720,61 @@ class Fighter {
     }
 }
 
-// 选人状态
+// 选人状态 (v39.0 VS Arena)
 let selectedPlayer1 = 'RYO';
 let selectedPlayer2 = 'TECH';
+const CHARACTER_ORDER = ['RYO', 'TECH', 'KIM', 'SHERMIE', 'TERRY'];
 
 let player = null;
 let enemy = null;
+
+// v39.0 箭头循环切换角色
+window.cycleCharacter = function (slot, direction) {
+    const current = slot === 1 ? selectedPlayer1 : selectedPlayer2;
+    const idx = CHARACTER_ORDER.indexOf(current);
+    const newIdx = (idx + direction + CHARACTER_ORDER.length) % CHARACTER_ORDER.length;
+    const newChar = CHARACTER_ORDER[newIdx];
+
+    if (slot === 1) {
+        selectedPlayer1 = newChar;
+    } else {
+        selectedPlayer2 = newChar;
+    }
+
+    updatePortrait(slot, newChar);
+    AudioEngine.playSwing();
+};
+
+// v39.0 更新头像显示
+function updatePortrait(slot, charId) {
+    const charData = CHARACTER_REGISTRY[charId];
+    const portrait = document.getElementById(`p${slot}-portrait`);
+    const nameEl = document.getElementById(`p${slot}-char-name`);
+
+    portrait.src = charData.imageSrc;
+    nameEl.innerText = charData.name;
+
+    // 应用色调滤镜 (基于角色类型)
+    const filterMap = {
+        'RYO': '',
+        'TECH': '',
+        'KIM': 'hue-rotate(180deg)',
+        'SHERMIE': 'hue-rotate(270deg)',
+        'TERRY': 'sepia(1) saturate(5) hue-rotate(-50deg)'
+    };
+    portrait.style.filter = filterMap[charId] || '';
+}
 
 window.selectCharacter = function (slot, charId) {
     if (slot === 1) {
         selectedPlayer1 = charId;
         document.querySelectorAll('.p1-select .char-card').forEach(c => c.classList.remove('active'));
-        document.querySelector(`.p1-select .char-card[data-id="${charId}"]`).classList.add('active');
+        document.querySelector(`.p1-select .char-card[data-id="${charId}"]`)?.classList.add('active');
     } else {
         selectedPlayer2 = charId;
         document.querySelectorAll('.p2-select .char-card').forEach(c => c.classList.remove('active'));
-        document.querySelector(`.p2-select .char-card[data-id="${charId}"]`).classList.add('active');
+        document.querySelector(`.p2-select .char-card[data-id="${charId}"]`)?.classList.add('active');
     }
-    // 播放切换音效
     AudioEngine.playSwing();
 };
 
