@@ -26,14 +26,14 @@ const CHARACTER_REGISTRY = {
         imageSrc: new URL('./assets/textures/character.png', import.meta.url).href,
         superColor: '#ff4500', // 火焰橙
         counterColor: '#ff00ff',
-        shadowOffset: 25 // 影子锚点微调
+        spritePivotX: 185 // 精确足部中心坐标 (像素)
     },
     TECH: {
         name: 'TECH-STRIKER',
         imageSrc: new URL('./assets/textures/character_tech.png', import.meta.url).href,
         superColor: '#00ccff', // 冰晶蓝
         counterColor: '#ffffff',
-        shadowOffset: 30 // 影子锚点微调
+        spritePivotX: 190 // 精确足部中心坐标 (像素)
     }
 };
 
@@ -307,7 +307,7 @@ class Fighter {
         this.name = charData.name;
         this.superColor = charData.superColor;
         this.counterColor = charData.counterColor;
-        this.shadowOffset = charData.shadowOffset || 0;
+        this.spritePivotX = charData.spritePivotX || 160; // 默认中心
 
         // 状态定义 (v4.0 深度分片)
         this.state = 'IDLE';
@@ -386,12 +386,17 @@ class Fighter {
         // 动态对峙逻辑 (反转判定以适配素材基准)
         // 如果对手在右边 (opponent.x > this.x), 应该不翻转 (面向右)
         // 如果对手在左边 (opponent.x < this.x), 应该翻转 (面向左)
+        // 渲染位置计算：基于足部中心 (Pivot) 对齐物理影子
+        // 物理中心在 x + width/2，我们要让素材的 spritePivotX 刚好在该点上
+        const renderX = (this.position.x + this.width / 2) - (this.spritePivotX);
+
         if (this.shouldFlip) {
-            ctx.translate(this.position.x + this.width, this.position.y);
+            ctx.translate(this.position.x + this.width / 2, this.position.y);
             ctx.scale(-1, 1);
-            ctx.drawImage(this.rawImage, sx, sy, sWidth, sHeight, -120, -100, 320, 320);
+            // 翻转模式下，渲染起点需要反向补偿
+            ctx.drawImage(this.rawImage, sx, sy, sWidth, sHeight, -this.spritePivotX, -100, 320, 320);
         } else {
-            ctx.drawImage(this.rawImage, sx, sy, sWidth, sHeight, this.position.x - 120, this.position.y - 100, 320, 320);
+            ctx.drawImage(this.rawImage, sx, sy, sWidth, sHeight, renderX, this.position.y - 100, 320, 320);
         }
         ctx.restore();
     }
