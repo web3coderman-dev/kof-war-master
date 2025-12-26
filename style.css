@@ -869,16 +869,16 @@ body {
 
 .portrait-frame img {
     position: absolute;
-    top: 50%;
+    top: 0;
     left: 50%;
-    width: 320px;
-    /* 精灵图宽度 (64px * 5 倍放大) */
-    height: 320px;
-    /* 精灵图高度 (64px * 5 倍放大) */
-    transform: translate(-50%, -50%);
+    width: 256px;
+    /* 精灵图宽度 (64px * 4 倍) */
+    height: 256px;
+    /* 精灵图高度 */
+    transform: translateX(-50%);
     object-fit: none;
-    object-position: 0 0;
-    /* 只显示第一帧 */
+    object-position: 0 -10px;
+    /* 向上偏移显示头部 */
     image-rendering: pixelated;
 }
 
