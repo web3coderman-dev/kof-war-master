@@ -484,13 +484,14 @@ class Fighter {
         this.velocity.x += this.shouldFlip ? -power : power;
     }
 
-    takeHit(isCounter = false) {
+    takeHit(isCounter = false, damageMult = 1) {
         if (this.isDead) return;
         this.state = 'HIT';
         this.framesCurrent = this.frames['HIT'].start;
 
-        // 反击判定逻辑 (Counter Hit) 收益翻倍
-        const damage = isCounter ? 25 : 15;
+        // 反击判定逻辑 (Counter Hit) 收益翻倍，加上招式倍率
+        const baseDamage = isCounter ? 25 : 15;
+        const damage = baseDamage * damageMult;
         this.health -= damage;
 
         if (isCounter) {
@@ -645,17 +646,27 @@ function animate() {
 
     if (aiManager) aiManager.update();
 
-    // 碰撞体系与反击判定 (Counter System)
-    if (player.isAttacking && player.framesCurrent >= 5 && player.framesCurrent <= 10) {
+    // 碰撞体系与反击判定 (Counter System) - v24.0 状态感知系统
+    const getActiveWindow = (state) => {
+        if (state === 'PUNCH') return { start: 5, end: 7 };
+        if (state === 'KICK') return { start: 8, end: 11 };
+        if (state === 'SUPER') return { start: 12, end: 14 };
+        return { start: -1, end: -1 };
+    };
+
+    const pWin = getActiveWindow(player.state);
+    if (player.isAttacking && player.framesCurrent >= pWin.start && player.framesCurrent <= pWin.end) {
         if (collision(player, enemy)) {
-            // 如果敌方由于正在攻击而被截击 -> COUNTER!
             const isCounter = ['PUNCH', 'KICK', 'SUPER'].includes(enemy.state);
             player.isAttacking = false;
-            enemy.takeHit(isCounter);
+
+            // SUPER 伤害增益
+            const damageMult = player.state === 'SUPER' ? 2.5 : 1;
+            enemy.takeHit(isCounter, damageMult);
+
             const p2Percent = (enemy.health / enemy.maxHealth * 100);
             const p2Bar = document.querySelector('#p2-hp');
             p2Bar.style.width = p2Percent + '%';
-            // 动态色彩映射 (体现5倍血量厚度)
             if (p2Percent > 80) p2Bar.style.background = 'linear-gradient(to bottom, #00ff00, #008800)';
             else if (p2Percent > 60) p2Bar.style.background = 'linear-gradient(to bottom, #ffff00, #888800)';
             else if (p2Percent > 40) p2Bar.style.background = 'linear-gradient(to bottom, #ffaa00, #885500)';
@@ -664,15 +675,18 @@ function animate() {
         }
     }
 
-    if (enemy.isAttacking && enemy.framesCurrent >= 5 && enemy.framesCurrent <= 10) {
+    const eWin = getActiveWindow(enemy.state);
+    if (enemy.isAttacking && enemy.framesCurrent >= eWin.start && enemy.framesCurrent <= eWin.end) {
         if (collision(enemy, player)) {
             const isCounter = ['PUNCH', 'KICK', 'SUPER'].includes(player.state);
             enemy.isAttacking = false;
-            player.takeHit(isCounter);
+
+            const damageMult = enemy.state === 'SUPER' ? 2.5 : 1;
+            player.takeHit(isCounter, damageMult);
+
             const p1Percent = (player.health / player.maxHealth * 100);
             const p1Bar = document.querySelector('#p1-hp');
             p1Bar.style.width = p1Percent + '%';
-            // 动态色彩映射
             if (p1Percent > 80) p1Bar.style.background = 'linear-gradient(to bottom, #00ff00, #008800)';
             else if (p1Percent > 60) p1Bar.style.background = 'linear-gradient(to bottom, #ffff00, #888800)';
             else if (p1Percent > 40) p1Bar.style.background = 'linear-gradient(to bottom, #ffaa00, #885500)';
