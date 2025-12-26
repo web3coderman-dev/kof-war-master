@@ -25,13 +25,15 @@ const CHARACTER_REGISTRY = {
         name: 'RYO SAKAZAKI',
         imageSrc: new URL('./assets/textures/character.png', import.meta.url).href,
         superColor: '#ff4500', // 火焰橙
-        counterColor: '#ff00ff'
+        counterColor: '#ff00ff',
+        shadowOffset: 25 // 影子锚点微调
     },
     TECH: {
         name: 'TECH-STRIKER',
         imageSrc: new URL('./assets/textures/character_tech.png', import.meta.url).href,
         superColor: '#00ccff', // 冰晶蓝
-        counterColor: '#ffffff'
+        counterColor: '#ffffff',
+        shadowOffset: 30 // 影子锚点微调
     }
 };
 
@@ -305,6 +307,7 @@ class Fighter {
         this.name = charData.name;
         this.superColor = charData.superColor;
         this.counterColor = charData.counterColor;
+        this.shadowOffset = charData.shadowOffset || 0;
 
         // 状态定义 (v4.0 深度分片)
         this.state = 'IDLE';
@@ -332,14 +335,19 @@ class Fighter {
     }
 
     drawShadow() {
-        // 动态投影：基于地平线锁定的椭圆算法
+        // 动态投影：基于地平线锁定的偏移锚点算法 (v22.0)
         const groundDist = GROUND_Y - (this.position.y + this.height);
         const shadowScale = Math.max(0.3, 1 - (groundDist / 400));
+
+        // 计算基于渲染偏移的锚点中心
+        // 逻辑中心是 x + width/2，但素材不对称，需要应用 shadowOffset
+        const offset = this.shouldFlip ? -this.shadowOffset : this.shadowOffset;
+        const centerX = this.position.x + this.width / 2 + offset;
 
         ctx.save();
         ctx.beginPath();
         ctx.ellipse(
-            this.position.x + this.width / 2,
+            centerX,
             GROUND_Y,
             this.width * 0.9 * shadowScale,
             15 * shadowScale,
@@ -747,11 +755,11 @@ function bindTouchControls() {
 bindTouchControls();
 
 /* Command Center Logic (v20.0) */
-window.toggleGuide = function(show) {
+window.toggleGuide = function (show) {
     const modal = document.getElementById('guide-modal');
     if (modal) {
         modal.style.display = show ? 'flex' : 'none';
-        
+
         // 模态框打开时暂停游戏输入
         if (show) {
             gameStarted = false;
