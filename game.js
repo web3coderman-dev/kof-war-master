@@ -19,21 +19,27 @@ const DIFFICULTY_SETTINGS = {
     HARD: { reactionDelay: 5, attackChance: 0.35, moveSpeed: 7, comboChance: 0.8, counterChance: 0.9, blockChance: 0.60 }
 };
 
-// 角色注册表 (v40.1 精简名单)
+// 角色注册表 (v40.2 精灵图布局配置)
 const CHARACTER_REGISTRY = {
     RYO: {
         name: 'RYO SAKAZAKI',
         imageSrc: new URL('./assets/textures/character.png', import.meta.url).href,
-        superColor: '#ff4500', // 火焰橙
+        superColor: '#ff4500',
         counterColor: '#ff00ff',
-        spritePivotX: 185
+        spritePivotX: 185,
+        spriteCols: 4,  // 精灵图列数
+        spriteRows: 4,  // 精灵图行数
+        framesMax: 16   // 总帧数
     },
     TECH: {
         name: 'TECH-STRIKER',
-        imageSrc: new URL('./assets/textures/character_tech.png', import.meta.url).href,
-        superColor: '#00ccff', // 冰晶蓝
+        imageSrc: new URL('./assets/textures/character_new.png', import.meta.url).href,
+        superColor: '#00ccff',
         counterColor: '#ffffff',
-        spritePivotX: 190
+        spritePivotX: 100,
+        spriteCols: 4,  // 4 列
+        spriteRows: 2,  // 2 行
+        framesMax: 8    // 总 8 帧
     }
 };
 
@@ -415,23 +421,26 @@ class Fighter {
         this.name = charData.name;
         this.superColor = charData.superColor;
         this.counterColor = charData.counterColor;
-        this.spritePivotX = charData.spritePivotX || 160; // 默认中心
+        this.spritePivotX = charData.spritePivotX || 160;
+        this.spriteCols = charData.spriteCols || 4;  // v40.2 精灵图列数
+        this.spriteRows = charData.spriteRows || 4;  // v40.2 精灵图行数
+        this.framesMax = charData.framesMax || 16;   // v40.2 总帧数
 
-        // 状态定义 (v38.0 被动格挡)
+        // 状态定义 (v40.2 动态适配)
         this.state = 'IDLE';
+        const maxFrame = this.framesMax - 1;
         this.frames = {
-            IDLE: { start: 0, end: 3, hold: 12 },    // 呼吸待机
-            PUNCH: { start: 4, end: 7, hold: 5 },   // 快速出拳
-            KICK: { start: 8, end: 11, hold: 6 },   // 重型踢击
-            SUPER: { start: 12, end: 14, hold: 8 }, // 必杀大招
-            HIT: { start: 14, end: 14, hold: 10 },  // 受击停顿
-            BLOCK: { start: 14, end: 14, hold: 6 }, // v38.0 格挡姿态
-            DEAD: { start: 15, end: 15, hold: 1 }   // 倒地
+            IDLE: { start: 0, end: Math.min(maxFrame, 7), hold: 10 },
+            PUNCH: { start: 0, end: Math.min(maxFrame, 3), hold: 4 },
+            KICK: { start: Math.min(maxFrame, 4), end: Math.min(maxFrame, 7), hold: 5 },
+            SUPER: { start: 0, end: maxFrame, hold: 3 },
+            HIT: { start: 0, end: 0, hold: 10 },
+            BLOCK: { start: 0, end: 0, hold: 6 },
+            DEAD: { start: Math.min(maxFrame, 4), end: Math.min(maxFrame, 4), hold: 1 }
         };
 
         this.rawImage = new Image();
         this.rawImage.src = charData.imageSrc;
-        this.framesMax = 16;
         this.framesCurrent = 0;
         this.framesElapsed = 0;
 
@@ -471,10 +480,10 @@ class Fighter {
         if (!this.rawImage.complete) return;
         this.drawShadow();
 
-        const sw = this.rawImage.width / 4;
-        const sh = this.rawImage.height / 4;
-        const col = this.framesCurrent % 4;
-        const row = Math.floor(this.framesCurrent / 4);
+        const sw = this.rawImage.width / this.spriteCols;
+        const sh = this.rawImage.height / this.spriteRows;
+        const col = this.framesCurrent % this.spriteCols;
+        const row = Math.floor(this.framesCurrent / this.spriteCols);
         const sx = Math.floor(col * sw) + 3;
         const sy = Math.floor(row * sh) + 3;
         const sWidth = Math.floor(sw) - 6;
@@ -488,8 +497,8 @@ class Fighter {
             ctx.translate(gRenderX, g.y + this.height);
             if (this.shouldFlip) ctx.scale(-1, 1);
 
-            const gCol = g.frame % 4;
-            const gRow = Math.floor(g.frame / 4);
+            const gCol = g.frame % this.spriteCols;
+            const gRow = Math.floor(g.frame / this.spriteCols);
             const gSx = Math.floor(gCol * sw) + 3;
             const gSy = Math.floor(gRow * sh) + 3;
 
