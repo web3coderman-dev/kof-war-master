@@ -290,6 +290,14 @@ class AIManager {
                 this.currentPlan = 'NEUTRAL';
             }
         }
+
+        // 6. 概率保底机制 (v35.0 Probability Floor)
+        // 确保 AI 在近距离时永远有兆底攻击行为
+        if (!this.fighter.isAttacking && absDist < 200 && absDist > 50) {
+            if (Math.random() < 0.25) { // 25% 保底率
+                this.fighter.attack('PUNCH');
+            }
+        }
     }
 }
 
