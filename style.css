@@ -43,70 +43,75 @@ body {
 
 .ui-layer {
     position: absolute;
-    top: 20px;
+    top: 40px;
     left: 0;
     width: 100%;
     z-index: 3;
     pointer-events: none;
-}
-
-.health-meta {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 0 40px;
+    padding: 0 60px;
+    box-sizing: border-box;
 }
 
-.player-info {
-    width: 350px;
+.player-hud {
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.hp-bar-outer {
-    height: 35px;
-    background: rgba(0, 0, 0, 0.6);
-    border: 3px solid #666;
-    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.1);
-    overflow: hidden;
-    position: relative;
-    border-radius: 4px;
+.p2-hud {
+    align-items: flex-end;
 }
 
-.hp-bar-inner {
-    height: 100%;
-    background: linear-gradient(to bottom, #00ff00, #008800);
-    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s ease;
-    box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.5);
-}
-
-.player-name {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-top: 5px;
-    text-shadow: 2px 2px 0 #000;
-}
-
-.p2 .hp-bar-inner {
-    float: right;
-    background: linear-gradient(to bottom, #00ff00, #008800);
-}
-
-.p2 .player-name {
+.p2-hud .player-name {
     text-align: right;
 }
 
-.timer-wrapper {
-    width: 80px;
-    height: 80px;
-    background: rgba(0, 0, 0, 0.7);
-    border: 4px solid #fff;
+.bar-container {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.hp-container {
+    height: 32px;
+}
+
+.sp-container {
+    height: 10px;
+    margin-top: 4px;
+}
+
+.bar-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to bottom, #00ff00, #008800);
+    transition: width 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.4);
+}
+
+.timer {
+    width: 100px;
+    height: 100px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 3px solid #ffd700;
+    border-radius: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2.5rem;
-    font-weight: bold;
-    border-radius: 5px;
+    font-size: 3rem;
+    font-weight: 900;
     color: #ffd700;
-    text-shadow: 2px 2px 0 #000;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    font-family: 'Orbitron', sans-serif;
+    transform: translateY(-10px);
 }
 
 .overlay-msg {
@@ -593,6 +598,7 @@ body {
         display: none;
     }
 }
+
 /* Command Center Modal (v20.0) */
 .modal-overlay {
     position: fixed;
@@ -616,7 +622,7 @@ body {
     border-radius: 24px;
     border: 1px solid rgba(255, 215, 0, 0.3);
     position: relative;
-    box-shadow: 0 50px 100px rgba(0,0,0,0.8);
+    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8);
 }
 
 .modal-title {
@@ -679,7 +685,9 @@ body {
     transition: 0.3s;
 }
 
-.close-modal:hover { color: #fff; }
+.close-modal:hover {
+    color: #fff;
+}
 
 .pro-tips {
     display: grid;
@@ -695,10 +703,21 @@ body {
     align-items: flex-start;
 }
 
-.tip-icon { font-size: 1.5rem; }
+.tip-icon {
+    font-size: 1.5rem;
+}
 
-.tip-item h5 { color: #ddd; margin-bottom: 0.5rem; font-size: 0.85rem; }
-.tip-item p { color: #666; font-size: 0.75rem; line-height: 1.5; }
+.tip-item h5 {
+    color: #ddd;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.tip-item p {
+    color: #666;
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
 
 /* Trigger Button */
 .selection-footer {
