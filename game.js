@@ -675,15 +675,18 @@ function checkEndGame() {
         koOverlay.style.display = 'flex';
 
         const koText = document.querySelector('.ko-text');
+        const msg = document.querySelector('#game-message');
         const lang = document.documentElement.lang || 'en';
         const dict = LANG_DICT[lang.startsWith('zh') ? 'zh' : 'en'];
+
+        msg.classList.add('show');
 
         // 计算得分 (基于血量、时间、难度)
         let battleScore = 0;
         if (player.health > enemy.health) {
             const diffBonus = currentDifficulty === 'HARD' ? 5000 : (currentDifficulty === 'MEDIUM' ? 1000 : 0);
             battleScore = Math.floor((player.health * 10) + (timer * 50) + diffBonus);
-            msg.innerText = 'P1 VICTORIOUS';
+            msg.innerText = dict['msg-win'];
             koText.innerText = dict['ko-win'];
             koText.style.color = '#ffd700'; // 胜利金
             koText.style.textShadow = '0 0 20px rgba(255, 215, 0, 0.8)';
@@ -692,13 +695,13 @@ function checkEndGame() {
             document.querySelector('#final-score-val').innerText = battleScore;
             document.querySelector('#score-submission').style.display = 'block';
         } else if (player.health < enemy.health) {
-            msg.innerText = 'AI VICTORIOUS';
+            msg.innerText = dict['msg-lose'];
             koText.innerText = dict['ko-lose'];
             koText.style.color = '#ff4444'; // 失败红
             koText.style.textShadow = '0 0 20px rgba(255, 68, 68, 0.8)';
             koOverlay.style.background = 'rgba(20, 0, 0, 0.85)'; // 战败暗红氛围
         } else {
-            msg.innerText = 'DRAW';
+            msg.innerText = dict['msg-draw'];
             koText.innerText = dict['ko-draw'];
             koText.style.color = '#cccccc';
         }

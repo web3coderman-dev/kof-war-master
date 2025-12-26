@@ -27,7 +27,10 @@ export const LANG_DICT = {
         "btn-restart": "RESTART BATTLE",
         "ko-win": "VICTORY",
         "ko-lose": "DEFEAT",
-        "ko-draw": "DRAW"
+        "ko-draw": "DRAW",
+        "msg-win": "P1 VICTORIOUS",
+        "msg-lose": "AI VICTORIOUS",
+        "msg-draw": "DRAW"
     },
     zh: {
         "selection-title-p1": "玩家 1",
@@ -57,6 +60,9 @@ export const LANG_DICT = {
         "btn-restart": "重新决战",
         "ko-win": "大获全胜",
         "ko-lose": "战败惜败",
-        "ko-draw": "平局"
+        "ko-draw": "平局",
+        "msg-win": "玩家 1 最终胜出",
+        "msg-lose": "AI 统治了赛场",
+        "msg-draw": "双方握手言和"
     }
 };
