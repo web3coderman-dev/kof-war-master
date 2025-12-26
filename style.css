@@ -868,10 +868,16 @@ body {
 }
 
 .portrait-frame img {
-    width: 160px;
-    height: 160px;
-    object-fit: cover;
-    object-position: top center;
+    /* 精灵图放大到单帧填满容器
+       假设精灵图为 4x4 布局，每帧 64x64
+       放大 2.5 倍 -> 单帧变成 160x160 */
+    width: 640px;
+    /* 256px * 2.5 */
+    height: 640px;
+    /* 256px * 2.5 */
+    object-fit: none;
+    object-position: 0 0;
+    /* 只显示第一帧 (左上角) */
     image-rendering: pixelated;
 }
 
