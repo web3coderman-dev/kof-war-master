@@ -195,60 +195,78 @@ class AIManager {
         const dist = this.target.position.x - this.fighter.position.x;
         const absDist = Math.abs(dist);
         const playerIsAttacking = ['PUNCH', 'KICK', 'SUPER'].includes(this.target.state);
+        const playerIsAerial = this.target.position.y < GROUND_Y - 200;
 
-        // 1. 读帧反击逻辑 (Counter-System)
+        // 1. 防空红区语义化逻辑 (Anti-Air & Verticality)
+        if (playerIsAerial && absDist < 200 && this.fighter.velocity.y === 0) {
+            if (Math.random() < 0.6) {
+                this.fighter.velocity.y = -18; // 起跳拦截
+                this.fighter.attack('KICK');   // 空中截击
+                return;
+            }
+        }
+
+        // 2. 读帧反击逻辑 (Counter-System)
         if (playerIsAttacking && absDist < 250) {
             if (Math.random() < this.config.counterChance) {
-                // 发现对方前摇，执行反击
+                // 发现对方前摇，根据距离执行最优反解
                 if (absDist < 120) {
-                    this.fighter.attack('PUNCH'); // 贴身截击
+                    this.fighter.attack('PUNCH');
                 } else if (absDist < 200) {
-                    this.fighter.attack('KICK'); // 中程拦截
-                } else if (this.target.state === 'SUPER') {
-                    this.fighter.attack('SUPER'); // 对撼大招
+                    this.fighter.attack('KICK');
+                } else if (this.target.state === 'SUPER' && this.fighter.sp >= this.fighter.maxSp) {
+                    this.fighter.attack('SUPER'); // 资源对撼
                 }
                 return;
-            } else if (Math.random() < 0.3) {
-                // 战术后撤躲避
+            } else if (Math.random() < 0.4) {
+                // 战术垂直躲避 (跳跃躲波或躲低端判定)
+                if (this.fighter.velocity.y === 0) this.fighter.velocity.y = -15;
                 this.currentPlan = 'RETREAT';
             }
         }
 
-        // 2. 状态机驱动位移与决策
+        // 3. SP 资源博弈逻辑 (Strategic Super)
+        if (this.fighter.sp >= this.fighter.maxSp && absDist < 250 && !playerIsAttacking) {
+            if (Math.random() < 0.7) {
+                this.fighter.attack('SUPER');
+                return;
+            }
+        }
+
+        // 4. 动态立回与状态机 (Spacing & Decision)
         if (this.currentPlan === 'RETREAT') {
             const retreatDir = dist > 0 ? -1 : 1;
             this.fighter.velocity.x = retreatDir * this.config.moveSpeed;
-            if (absDist > 350) this.currentPlan = 'NEUTRAL';
-        } else if (absDist > 220) {
+            if (absDist > 380) this.currentPlan = 'NEUTRAL';
+        } else if (absDist > 240) {
             // 追击距离
             this.fighter.velocity.x = dist > 0 ? this.config.moveSpeed : -this.config.moveSpeed;
-        } else if (absDist < 100) {
-            // 贴身过近，拉开距离
+        } else if (absDist < 120 && Math.random() < 0.3) {
+            // 贴身过近时的诱敌后撤 (Weaving)
             this.fighter.velocity.x = dist > 0 ? -this.config.moveSpeed : this.config.moveSpeed;
         } else {
-            // 中距离对峙平衡
-            this.fighter.velocity.x *= 0.5; // 对峙时缓动
+            // 中距离对峙平衡 (左右晃动干扰)
+            const wobble = Math.sin(this.tick * 0.1) * 2;
+            this.fighter.velocity.x = wobble;
 
             // 进攻判定
             if (Math.random() < this.config.attackChance) {
                 const rand = Math.random();
                 if (rand < 0.6) this.fighter.attack('PUNCH');
-                else if (rand < 0.9) this.fighter.attack('KICK');
-                else this.fighter.attack('SUPER');
+                else this.fighter.attack('KICK');
 
-                // 开启连招追击计划
+                // 连招压制计划
                 if (Math.random() < this.config.comboChance) {
                     this.currentPlan = 'PRESSURE';
                 }
             }
         }
 
-        // 3. 连招追击逻辑
+        // 5. 连招压制逻辑
         if (this.currentPlan === 'PRESSURE' && !this.fighter.isAttacking) {
             if (absDist < 200) {
-                const comboType = Math.random() > 0.4 ? 'KICK' : 'SUPER';
-                this.fighter.attack(comboType);
-                this.currentPlan = 'NEUTRAL'; // 完成一波压制后回归中立
+                this.fighter.attack('KICK');
+                this.currentPlan = 'NEUTRAL';
             }
         }
     }
