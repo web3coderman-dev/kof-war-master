@@ -18,24 +18,29 @@
 
         <!-- Combat UI -->
         <div class="ui-layer">
-            <div class="health-meta">
-                <div class="player-info p1">
-                    <div class="hp-bar-outer">
-                        <div id="p1-hp" class="hp-bar-inner" style="width: 100%;"></div>
-                    </div>
-                    <div class="player-name">PLAYER 1</div>
+            <!-- Player 1 HP/SP -->
+            <div class="player-hud p1-hud">
+                <div class="bar-container hp-container">
+                    <div id="p1-hp" class="bar-fill"></div>
                 </div>
+                <div class="bar-container sp-container">
+                    <div id="p1-sp" class="bar-fill sp-fill"></div>
+                </div>
+                <div class="player-name">RYO SAKAZAKI</div>
+            </div>
 
-                <div class="timer-wrapper">
-                    <div id="game-timer">99</div>
-                </div>
+            <!-- Timer -->
+            <div id="timer" class="timer">90</div>
 
-                <div class="player-info p2">
-                    <div class="hp-bar-outer">
-                        <div id="p2-hp" class="hp-bar-inner" style="width: 100%;"></div>
-                    </div>
-                    <div class="player-name">PLAYER 2</div>
+            <!-- Player 2 HP/SP -->
+            <div class="player-hud p2-hud">
+                <div class="bar-container hp-container">
+                    <div id="p2-hp" class="bar-fill"></div>
                 </div>
+                <div class="bar-container sp-container">
+                    <div id="p2-sp" class="bar-fill sp-fill"></div>
+                </div>
+                <div class="player-name">TECH-STRIKER</div>
             </div>
         </div>
 

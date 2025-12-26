@@ -297,6 +297,8 @@ class Fighter {
         this.height = 160;
         this.maxHealth = 500;
         this.health = 500;
+        this.sp = 0;
+        this.maxSp = 100;
         this.isDead = false;
         this.isAttacking = false;
         this.color = color;
@@ -468,13 +470,17 @@ class Fighter {
     attack(type = 'PUNCH') {
         if (['PUNCH', 'KICK', 'SUPER'].includes(this.state) || this.isDead) return;
 
+        // 大招资源检查
+        if (type === 'SUPER' && this.sp < this.maxSp) return;
+
         this.state = type;
         this.framesCurrent = this.frames[type].start;
         this.isAttacking = true;
 
         if (type === 'SUPER') {
+            this.sp = 0; // 消耗所有能量
             AudioEngine.playSuper();
-            screenShake = 10; // 出招瞬间小震动
+            screenShake = 10;
         } else {
             AudioEngine.playSwing();
         }
@@ -488,6 +494,9 @@ class Fighter {
         if (this.isDead) return;
         this.state = 'HIT';
         this.framesCurrent = this.frames['HIT'].start;
+
+        // 受击回气逻辑
+        this.sp = Math.min(this.maxSp, this.sp + 10);
 
         // 反击判定逻辑 (Counter Hit) 收益翻倍，加上招式倍率
         const baseDamage = isCounter ? 25 : 15;
@@ -660,13 +669,22 @@ function animate() {
             const isCounter = ['PUNCH', 'KICK', 'SUPER'].includes(enemy.state);
             player.isAttacking = false;
 
+            // 攻击积攒能量逻辑
+            player.sp = Math.min(player.maxSp, player.sp + 15);
+
             // SUPER 伤害增益
             const damageMult = player.state === 'SUPER' ? 2.5 : 1;
             enemy.takeHit(isCounter, damageMult);
 
+            // 同步 UI
             const p2Percent = (enemy.health / enemy.maxHealth * 100);
-            const p2Bar = document.querySelector('#p2-hp');
+            const p2Bar = document.querySelector('#p2-hp'); // Define p2Bar here
             p2Bar.style.width = p2Percent + '%';
+            const p2SpPercent = (player.sp / player.maxSp * 100);
+            const p1SpBar = document.querySelector('#p1-sp');
+            p1SpBar.style.width = p2SpPercent + '%';
+            if (p2SpPercent >= 100) p1SpBar.classList.add('full');
+            else p1SpBar.classList.remove('full');
             if (p2Percent > 80) p2Bar.style.background = 'linear-gradient(to bottom, #00ff00, #008800)';
             else if (p2Percent > 60) p2Bar.style.background = 'linear-gradient(to bottom, #ffff00, #888800)';
             else if (p2Percent > 40) p2Bar.style.background = 'linear-gradient(to bottom, #ffaa00, #885500)';
@@ -681,12 +699,20 @@ function animate() {
             const isCounter = ['PUNCH', 'KICK', 'SUPER'].includes(player.state);
             enemy.isAttacking = false;
 
+            // 敌方积攒能量
+            enemy.sp = Math.min(enemy.maxSp, enemy.sp + 15);
+
             const damageMult = enemy.state === 'SUPER' ? 2.5 : 1;
             player.takeHit(isCounter, damageMult);
 
             const p1Percent = (player.health / player.maxHealth * 100);
-            const p1Bar = document.querySelector('#p1-hp');
+            const p1Bar = document.querySelector('#p1-hp'); // Define p1Bar here
             p1Bar.style.width = p1Percent + '%';
+            const p2SpPercent = (enemy.sp / enemy.maxSp * 100);
+            const p2SpBar = document.querySelector('#p2-sp');
+            p2SpBar.style.width = p2SpPercent + '%';
+            if (p2SpPercent >= 100) p2SpBar.classList.add('full');
+            else p2SpBar.classList.remove('full');
             if (p1Percent > 80) p1Bar.style.background = 'linear-gradient(to bottom, #00ff00, #008800)';
             else if (p1Percent > 60) p1Bar.style.background = 'linear-gradient(to bottom, #ffff00, #888800)';
             else if (p1Percent > 40) p1Bar.style.background = 'linear-gradient(to bottom, #ffaa00, #885500)';
