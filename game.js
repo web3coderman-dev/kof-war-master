@@ -19,14 +19,14 @@ const DIFFICULTY_SETTINGS = {
     HARD: { reactionDelay: 5, attackChance: 0.35, moveSpeed: 7, comboChance: 0.8, counterChance: 0.9, blockChance: 0.60 }
 };
 
-// 角色注册表 (v11.0 英雄工厂 | v16.0 智能路径)
+// 角色注册表 (v40.1 精简名单)
 const CHARACTER_REGISTRY = {
     RYO: {
         name: 'RYO SAKAZAKI',
         imageSrc: new URL('./assets/textures/character.png', import.meta.url).href,
         superColor: '#ff4500', // 火焰橙
         counterColor: '#ff00ff',
-        spritePivotX: 185 // 精确足部中心坐标 (像素)
+        spritePivotX: 185
     },
     TECH: {
         name: 'TECH-STRIKER',
@@ -34,27 +34,6 @@ const CHARACTER_REGISTRY = {
         superColor: '#00ccff', // 冰晶蓝
         counterColor: '#ffffff',
         spritePivotX: 190
-    },
-    KIM: {
-        name: 'KIM KAPHWAN',
-        imageSrc: new URL('./assets/textures/character.png', import.meta.url).href, // Placeholder
-        superColor: '#00ffff', // 青蓝色
-        counterColor: '#0088ff',
-        spritePivotX: 185
-    },
-    SHERMIE: {
-        name: 'SHERMIE',
-        imageSrc: new URL('./assets/textures/character_tech.png', import.meta.url).href, // Placeholder
-        superColor: '#da70d6', // 紫罗兰
-        counterColor: '#ff00ff',
-        spritePivotX: 190
-    },
-    TERRY: {
-        name: 'TERRY BOGARD',
-        imageSrc: new URL('./assets/textures/character.png', import.meta.url).href, // Placeholder
-        superColor: '#ffcc00', // 黄金焰
-        counterColor: '#ff4400',
-        spritePivotX: 185
     }
 };
 
@@ -723,7 +702,7 @@ class Fighter {
 // 选人状态 (v39.0 VS Arena)
 let selectedPlayer1 = 'RYO';
 let selectedPlayer2 = 'TECH';
-const CHARACTER_ORDER = ['RYO', 'TECH', 'KIM', 'SHERMIE', 'TERRY'];
+const CHARACTER_ORDER = ['RYO', 'TECH'];
 
 let player = null;
 let enemy = null;
@@ -757,10 +736,7 @@ function updatePortrait(slot, charId) {
     // 应用色调滤镜 (基于角色类型)
     const filterMap = {
         'RYO': '',
-        'TECH': '',
-        'KIM': 'hue-rotate(180deg)',
-        'SHERMIE': 'hue-rotate(270deg)',
-        'TERRY': 'sepia(1) saturate(5) hue-rotate(-50deg)'
+        'TECH': ''
     };
     portrait.style.filter = filterMap[charId] || '';
 }
