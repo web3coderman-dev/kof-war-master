@@ -868,12 +868,18 @@ body {
 }
 
 .portrait-frame img {
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 320px;
+    /* 精灵图宽度 (64px * 5 倍放大) */
+    height: 320px;
+    /* 精灵图高度 (64px * 5 倍放大) */
+    transform: translate(-50%, -50%);
     object-fit: none;
     object-position: 0 0;
-    transform: scale(2.5);
-    transform-origin: top left;
+    /* 只显示第一帧 */
+    image-rendering: pixelated;
 }
 
 .portrait-glow {
