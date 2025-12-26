@@ -51,64 +51,68 @@
         <div id="start-screen" class="start-overlay">
             <div class="selection-container">
                 <div class="character-selection">
-                    <div class="selection-column p1-select">
-                        <h3 data-i18n="selection-title-p1">PLAYER 1</h3>
-                        <div class="char-grid">
-                            <div class="char-card active" data-id="RYO" onclick="selectCharacter(1, 'RYO')">
-                                <img src="assets/textures/character.png"
-                                    style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3);">
-                                <span>RYO</span>
-                            </div>
-                            <div class="char-card" data-id="TECH" onclick="selectCharacter(1, 'TECH')">
-                                <img src="assets/textures/character_tech.png"
-                                    style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3);">
-                                <span>TECH</span>
-                            </div>
-                            <div class="char-card" data-id="KIM" onclick="selectCharacter(1, 'KIM')">
-                                <img src="assets/textures/character.png"
-                                    style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3); filter: hue-rotate(180deg);">
-                                <span>KIM</span>
-                            </div>
-                            <div class="char-card" data-id="SHERMIE" onclick="selectCharacter(1, 'SHERMIE')">
-                                <img src="assets/textures/character_tech.png"
-                                    style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3); filter: hue-rotate(270deg);">
-                                <span>SHERMIE</span>
-                            </div>
-                            <div class="char-card" data-id="TERRY" onclick="selectCharacter(1, 'TERRY')">
-                                <img src="assets/textures/character.png"
-                                    style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3); filter: sepia(1) saturate(5) hue-rotate(-50deg);">
-                                <span>TERRY</span>
+                    <div class="player-select p1-select">
+                        <h4 data-i18n="selection-title-p1">PLAYER 1</h4>
+                        <div class="selection-track">
+                            <div class="char-grid">
+                                <div class="char-card active" data-id="RYO" onclick="selectCharacter(1, 'RYO')">
+                                    <img src="assets/textures/character.png"
+                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5);">
+                                    <span>RYO</span>
+                                </div>
+                                <div class="char-card" data-id="TECH" onclick="selectCharacter(1, 'TECH')">
+                                    <img src="assets/textures/character_tech.png"
+                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5);">
+                                    <span>TECH</span>
+                                </div>
+                                <div class="char-card" data-id="KIM" onclick="selectCharacter(1, 'KIM')">
+                                    <img src="assets/textures/character.png"
+                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5); filter: hue-rotate(180deg);">
+                                    <span>KIM</span>
+                                </div>
+                                <div class="char-card" data-id="SHERMIE" onclick="selectCharacter(1, 'SHERMIE')">
+                                    <img src="assets/textures/character_tech.png"
+                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5); filter: hue-rotate(270deg);">
+                                    <span>SHERMIE</span>
+                                </div>
+                                <div class="char-card" data-id="TERRY" onclick="selectCharacter(1, 'TERRY')">
+                                    <img src="assets/textures/character.png"
+                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5); filter: sepia(1) saturate(5) hue-rotate(-50deg);">
+                                    <span>TERRY</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="selection-column p2-select">
-                        <h3 data-i18n="selection-title-p2">AI OPPONENT</h3>
-                        <div class="char-grid">
-                            <div class="char-card" data-id="RYO" onclick="selectCharacter(2, 'RYO')">
-                                <img src="assets/textures/character.png"
-                                    style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3);">
-                                <span>RYO</span>
-                            </div>
-                            <div class="char-card active" data-id="TECH" onclick="selectCharacter(2, 'TECH')">
-                                <img src="assets/textures/character_tech.png"
-                                    style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3);">
-                                <span>TECH</span>
-                            </div>
-                            <div class="char-card" data-id="KIM" onclick="selectCharacter(2, 'KIM')">
-                                <img src="assets/textures/character.png"
-                                    style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3); filter: hue-rotate(180deg);">
-                                <span>KIM</span>
-                            </div>
-                            <div class="char-card" data-id="SHERMIE" onclick="selectCharacter(2, 'SHERMIE')">
-                                <img src="assets/textures/character_tech.png"
-                                    style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3); filter: hue-rotate(270deg);">
-                                <span>SHERMIE</span>
-                            </div>
-                            <div class="char-card" data-id="TERRY" onclick="selectCharacter(2, 'TERRY')">
-                                <img src="assets/textures/character.png"
-                                    style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3); filter: sepia(1) saturate(5) hue-rotate(-50deg);">
-                                <span>TERRY</span>
+                    <div class="player-select p2-select">
+                        <h4 data-i18n="selection-title-p2">AI OPPONENT</h4>
+                        <div class="selection-track">
+                            <div class="char-grid">
+                                <div class="char-card" data-id="RYO" onclick="selectCharacter(2, 'RYO')">
+                                    <img src="assets/textures/character.png"
+                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5);">
+                                    <span>RYO</span>
+                                </div>
+                                <div class="char-card active" data-id="TECH" onclick="selectCharacter(2, 'TECH')">
+                                    <img src="assets/textures/character_tech.png"
+                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5);">
+                                    <span>TECH</span>
+                                </div>
+                                <div class="char-card" data-id="KIM" onclick="selectCharacter(2, 'KIM')">
+                                    <img src="assets/textures/character.png"
+                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(2.5); filter: hue-rotate(180deg);">
+                                    <span>KIM</span>
+                                </div>
+                                <div class="char-card" data-id="SHERMIE" onclick="selectCharacter(2, 'SHERMIE')">
+                                    <img src="assets/textures/character_tech.png"
+                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3); filter: hue-rotate(270deg);">
+                                    <span>SHERMIE</span>
+                                </div>
+                                <div class="char-card" data-id="TERRY" onclick="selectCharacter(2, 'TERRY')">
+                                    <img src="assets/textures/character.png"
+                                        style="object-fit: none; object-position: 0 0; width: 64px; height: 64px; transform: scale(3); filter: sepia(1) saturate(5) hue-rotate(-50deg);">
+                                    <span>TERRY</span>
+                                </div>
                             </div>
                         </div>
                     </div>
