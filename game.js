@@ -745,3 +745,30 @@ function bindTouchControls() {
 
 // 初始化
 bindTouchControls();
+
+/* Command Center Logic (v20.0) */
+window.toggleGuide = function(show) {
+    const modal = document.getElementById('guide-modal');
+    if (modal) {
+        modal.style.display = show ? 'flex' : 'none';
+        
+        // 模态框打开时暂停游戏输入
+        if (show) {
+            gameStarted = false;
+        } else if (document.getElementById('start-screen').style.display === 'none') {
+            gameStarted = true;
+        }
+    }
+}
+
+// 快捷键监听
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'h' || e.key === 'H' || e.key === 'Escape') {
+        const modal = document.getElementById('guide-modal');
+        if (modal && modal.style.display === 'flex') {
+            toggleGuide(false);
+        } else if (e.key !== 'Escape') {
+            toggleGuide(true);
+        }
+    }
+});
