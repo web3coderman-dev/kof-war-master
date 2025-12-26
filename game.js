@@ -12,11 +12,11 @@ canvas.height = 576;
 const GRAVITY = 0.6;
 const GROUND_Y = 500;
 
-// 游戏难度配置
+// 游戏难度配置 (v38.0 被动格挡)
 const DIFFICULTY_SETTINGS = {
-    EASY: { reactionDelay: 40, attackChance: 0.05, moveSpeed: 3, comboChance: 0.2, counterChance: 0.1 },
-    MEDIUM: { reactionDelay: 20, attackChance: 0.15, moveSpeed: 5, comboChance: 0.5, counterChance: 0.4 },
-    HARD: { reactionDelay: 5, attackChance: 0.35, moveSpeed: 7, comboChance: 0.8, counterChance: 0.9 }
+    EASY: { reactionDelay: 40, attackChance: 0.05, moveSpeed: 3, comboChance: 0.2, counterChance: 0.1, blockChance: 0.15 },
+    MEDIUM: { reactionDelay: 20, attackChance: 0.15, moveSpeed: 5, comboChance: 0.5, counterChance: 0.4, blockChance: 0.35 },
+    HARD: { reactionDelay: 5, attackChance: 0.35, moveSpeed: 7, comboChance: 0.8, counterChance: 0.9, blockChance: 0.60 }
 };
 
 // 角色注册表 (v11.0 英雄工厂 | v16.0 智能路径)
@@ -224,7 +224,7 @@ class ActionNode {
 }
 
 /**
- * 军用级 AI 管理器 (v37.0 攻击模式记忆)
+ * 军用级 AI 管理器 (v38.0 被动格挡架构)
  */
 class AIManager {
     constructor(fighter, target, difficulty) {
@@ -233,7 +233,6 @@ class AIManager {
         this.config = DIFFICULTY_SETTINGS[difficulty];
         this.tick = 0;
         this.currentPlan = 'NEUTRAL';
-        this.playerAttackHistory = []; // v37.0 攻击模式记忆
         this.behaviorTree = this.buildBehaviorTree();
     }
 
@@ -252,6 +251,15 @@ class AIManager {
     update() {
         if (this.fighter.isDead || this.target.isDead) return;
         this.tick++;
+
+        // v38.0 格挡反击窗口处理 (每帧检测)
+        if (this.fighter.counterWindow > 0) {
+            this.fighter.counterWindow--;
+            if (this.fighter.counterWindow === 12) { // 格挡后 6 帧发动反击
+                this.fighter.attack('PUNCH');
+            }
+        }
+
         if (this.tick % this.config.reactionDelay !== 0) return;
 
         const context = {
@@ -277,21 +285,10 @@ class AIManager {
         return NodeStatus.FAILURE;
     }
 
-    // 优先级 2: 读帧反击 (v37.0 攻击模式识别)
+    // 优先级 2: 读帧反击 (v38.0 简化版)
     tryCounter(ctx) {
         if (ctx.playerIsAttacking && ctx.absDist < 250) {
-            // v37.0 记录玩家攻击历史
-            this.playerAttackHistory.push(this.target.state);
-            if (this.playerAttackHistory.length > 5) this.playerAttackHistory.shift();
-
-            // v37.0 Spam检测：最近 3 次攻击是否相同
-            const recentAttacks = this.playerAttackHistory.slice(-3);
-            const spamDetected = recentAttacks.length >= 3 && recentAttacks.every(s => s === this.target.state);
-            const effectiveCounterChance = spamDetected
-                ? Math.min(1, this.config.counterChance * 3)  // Spam 情况反击率 ×3
-                : this.config.counterChance;
-
-            if (Math.random() < effectiveCounterChance) {
+            if (Math.random() < this.config.counterChance) {
                 if (ctx.absDist < 120) {
                     this.fighter.attack('PUNCH');
                 } else if (ctx.absDist < 200) {
@@ -430,6 +427,8 @@ class Fighter {
         // VSA (Visual Superposition Architecture) 扩展 (v29.0)
         this.ghosts = []; // 残影数组
         this.hitShake = 0; // 受击震动幅度
+        this.counterWindow = 0; // v38.0 格挡反击窗口
+        this.blockChance = 0; // v38.0 格挡概率 (由 AI 设置)
 
         // 绑定英雄元数据
         const charData = CHARACTER_REGISTRY[characterType];
@@ -439,7 +438,7 @@ class Fighter {
         this.counterColor = charData.counterColor;
         this.spritePivotX = charData.spritePivotX || 160; // 默认中心
 
-        // 状态定义 (v4.0 深度分片)
+        // 状态定义 (v38.0 被动格挡)
         this.state = 'IDLE';
         this.frames = {
             IDLE: { start: 0, end: 3, hold: 12 },    // 呼吸待机
@@ -447,6 +446,7 @@ class Fighter {
             KICK: { start: 8, end: 11, hold: 6 },   // 重型踢击
             SUPER: { start: 12, end: 14, hold: 8 }, // 必杀大招
             HIT: { start: 14, end: 14, hold: 10 },  // 受击停顿
+            BLOCK: { start: 14, end: 14, hold: 6 }, // v38.0 格挡姿态
             DEAD: { start: 15, end: 15, hold: 1 }   // 倒地
         };
 
@@ -654,6 +654,37 @@ class Fighter {
 
     takeHit(isCounter = false, damageMult = 1) {
         if (this.isDead) return;
+
+        // v38.0 被动格挡判定
+        if (this.blockChance > 0 && Math.random() < this.blockChance) {
+            // 格挡成功！
+            this.state = 'BLOCK';
+            this.framesCurrent = this.frames['BLOCK'].start;
+            this.hitShake = 5; // 轻微震动
+
+            // 伤害减至 20%
+            const baseDamage = isCounter ? 25 : 15;
+            const reducedDamage = Math.floor(baseDamage * damageMult * 0.2);
+            this.health -= reducedDamage;
+
+            // 激活反击窗口 (18帧 ≈ 0.3秒)
+            this.counterWindow = 18;
+
+            // 格挡特效
+            screenShake = 5;
+            createParticleBurst(this.position.x + 40, this.position.y + 60, '#00ffff', 15); // 防御粒子
+            createParticleBurst(this.position.x + 40, this.position.y + 60, '#ffffff', 10);
+
+            if (this.health <= 0) {
+                this.health = 0;
+                this.state = 'DEAD';
+                this.framesCurrent = this.frames['DEAD'].start;
+                this.isDead = true;
+            }
+            return; // 格挡后跳过正常受击逻辑
+        }
+
+        // 正常受击逻辑
         this.state = 'HIT';
         this.framesCurrent = this.frames['HIT'].start;
 
@@ -670,9 +701,9 @@ class Fighter {
 
         if (isCounter) {
             screenShake = 30; // 强力震屏
-            createParticleBurst(this.position.x + 40, this.position.y + 60, this.counterColor, 40); // 专属反击火花
+            createParticleBurst(this.position.x + 40, this.position.y + 60, this.counterColor, 40);
             createParticleBurst(this.position.x + 40, this.position.y + 60, '#ffffff', 20);
-            AudioEngine.playSuper(); // 增强听觉反馈
+            AudioEngine.playSuper();
         } else {
             screenShake = 15;
             createParticleBurst(this.position.x + 40, this.position.y + 60, '#ffffff', 25);
@@ -736,6 +767,7 @@ window.startGame = function (difficulty) {
     document.querySelector('.p2-hud .player-name').innerText = enemy.name;
 
     aiManager = new AIManager(enemy, player, difficulty);
+    enemy.blockChance = DIFFICULTY_SETTINGS[difficulty].blockChance; // v38.0 设置 AI 格挡率
     currentDifficulty = difficulty; // 记录当前难度用于评分
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('game-message').classList.add('show');
